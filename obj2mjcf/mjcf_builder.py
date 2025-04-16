@@ -47,7 +47,7 @@ class MJCFBuilder:
         etree.SubElement(
             visual_default_elem,
             "geom",
-            group="2",
+            group="1",
             type="mesh",
             contype="0",
             conaffinity="0",
@@ -56,7 +56,12 @@ class MJCFBuilder:
         # Define collision defaults.
         collision_default_elem = etree.SubElement(default_elem, "default")
         collision_default_elem.attrib["class"] = "collision"
-        etree.SubElement(collision_default_elem, "geom", group="3", type="mesh")
+        etree.SubElement(
+            collision_default_elem,
+            "geom",
+            group="0",
+            type="mesh"
+        )
 
     def add_assets(self, root: etree.Element, mtls: List[Material]) -> etree.Element:
         # Define the assets element.
