@@ -115,7 +115,12 @@ class MJCFBuilder:
         if isinstance(mesh, trimesh.base.Trimesh):
             meshname = Path(f"{filename.stem}.obj")
             # Add the mesh to assets.
-            etree.SubElement(asset_elem, "mesh", file=meshname.as_posix())
+            etree.SubElement(
+                asset_elem, 
+                "mesh", 
+                name=meshname.stem,
+                file=meshname.as_posix()
+            )
             # Add the geom to the worldbody.
             if process_mtl:
                 e_ = etree.SubElement(
@@ -132,7 +137,12 @@ class MJCFBuilder:
             for i, (name, geom) in enumerate(mesh.geometry.items()):
                 meshname = Path(f"{filename.stem}_{i}.obj")
                 # Add the mesh to assets.
-                etree.SubElement(asset_elem, "mesh", file=meshname.as_posix())
+                etree.SubElement(
+                    asset_elem, 
+                    "mesh", 
+                    name=meshname.stem,
+                    file=meshname.as_posix()
+                )
                 # Add the geom to the worldbody.
                 if process_mtl:
                     e_ = etree.SubElement(
@@ -165,7 +175,12 @@ class MJCFBuilder:
             collisions.sort(key=lambda x: int(x.stem.split("_")[-1]))
 
             for collision in collisions:
-                etree.SubElement(asset_elem, "mesh", file=collision.name)
+                etree.SubElement(
+                    asset_elem, 
+                    "mesh", 
+                    name=collision.stem,
+                    file=collision.name
+                )
                 rgb = np.random.rand(3)  # Generate random color for collision meshes.
                 e_ = etree.SubElement(
                     obj_body,
@@ -206,7 +221,13 @@ class MJCFBuilder:
 
         # Add worldbody.
         worldbody_elem = etree.SubElement(root, "worldbody")
-        obj_body = etree.SubElement(worldbody_elem, "body", name=filename.stem)
+        
+        # Add intermediate body
+        parent_body = etree.SubElement(worldbody_elem, "body")
+        
+        # Add object body with fixed name "object"
+        obj_body = etree.SubElement(parent_body, "body", name="object")
+        
         if add_free_joint:
             etree.SubElement(obj_body, "freejoint")
 
