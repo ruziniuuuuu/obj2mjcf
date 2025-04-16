@@ -11,6 +11,7 @@ from termcolor import cprint
 from obj2mjcf import constants
 from obj2mjcf.material import Material
 
+import os
 
 class MJCFBuilder:
     """Builds a MuJoCo XML model from a mesh and materials."""
@@ -33,6 +34,13 @@ class MJCFBuilder:
             self.work_dir = filename.parent / filename.stem
 
         self.tree = None
+
+    def add_compiler(
+            self,
+            root: etree.Element
+    ):
+        compiler_elem = etree.SubElement(root, "compiler")
+        compiler_elem.attrib["meshdir"] = f"../{self.work_dir.name}"
 
     def add_visual_and_collision_default_classes(
         self,
@@ -213,6 +221,9 @@ class MJCFBuilder:
         # Start assembling xml tree.
         root = etree.Element("mujoco", model=filename.stem)
 
+        # Add compiler with meshdir
+        self.add_compiler(root)
+
         # Add defaults.
         self.add_visual_and_collision_default_classes(root)
 
@@ -277,6 +288,8 @@ class MJCFBuilder:
             raise ValueError("Tree has not been defined yet.")
 
         # Save the MJCF file.
-        xml_path = work_dir / f"{filename.stem}.xml"
+        xml_path = work_dir / "../mjcf" / f"{filename.stem}.xml"
+        if not xml_path.exists():
+            os.makedirs(xml_path.parent, exist_ok=True)
         tree.write(xml_path.as_posix(), encoding="utf-8")
         logging.info(f"Saved MJCF to {xml_path}")
